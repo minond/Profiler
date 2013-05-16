@@ -85,9 +85,9 @@ class Profiler
 
     /**
      * @param int $name
-     * @param int $mode
+     * @param int $mode, default = Profiler::HEAVY
      */
-    public function __construct($name, $mode)
+    public function __construct($name, $mode = self::HEAVY)
     {
         $this->name = $name;
         $this->mode = $mode;
