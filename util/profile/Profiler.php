@@ -7,7 +7,7 @@ namespace util\profile;
  * events include:
  *  - start: Profiler is first started
  *  - tick: PHP tick
- *  - complete: PHP shutting down
+ *  - stop: PHP shutting down
  */
 class Profiler
 {
@@ -51,13 +51,13 @@ class Profiler
     protected $startmemory;
 
     /**
-     * time when Profiler::complete was called
+     * time when Profiler::stop was called
      * @var int
      */
     protected $endtime;
 
     /**
-     * memory at when Profiler::complete was called
+     * memory at when Profiler::stop was called
      * @var int
      */
     protected $endmemory;
@@ -78,6 +78,12 @@ class Profiler
     protected $mode;
 
     /**
+     * active/running flag
+     * @var boolean
+     */
+    protected $running = false;
+
+    /**
      * @param int $name
      * @param int $mode
      */
@@ -92,22 +98,23 @@ class Profiler
      */
     public function start()
     {
+        $this->running = true;
         $this->startmemory = memory_get_usage();
         $this->starttime = microtime(true);
 
         switch ($this->mode) {
             case self::HEAVY:
                 register_tick_function([ $this, 'tick' ]);
-                register_shutdown_function([ $this, 'complete' ]);
+                register_shutdown_function([ $this, 'stop' ]);
                 declare(ticks=1);
                 break;
 
             case self::LIGHT:
-                register_shutdown_function([ $this, 'complete' ]);
+                register_shutdown_function([ $this, 'stop' ]);
                 break;
         }
 
-        $this->trigger('init');
+        $this->trigger('start');
     }
 
     /**
@@ -129,11 +136,23 @@ class Profiler
     /**
      * outputs profiling information
      */
-    public function complete()
+    public function stop()
     {
+        if (!$this->running) {
+            return;
+        }
+
+        $this->running = false;
         $this->endmemory = memory_get_usage();
         $this->endtime = microtime(true);
-        $this->trigger('complete');
+
+        switch ($this->mode) {
+            case self::HEAVY:
+                unregister_tick_function([ $this, 'tick' ]);
+                break;
+        }
+
+        $this->trigger('stop');
     }
 
     /**
