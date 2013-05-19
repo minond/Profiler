@@ -2,6 +2,8 @@
 
 namespace util\profile\Report;
 
+use util\profile\Report;
+
 /**
  * outputs a report
  */
