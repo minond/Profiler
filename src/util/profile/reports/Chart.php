@@ -26,10 +26,10 @@ google.setOnLoadCallback(function() {
     data = new google.visualization.DataTable;
     data.addColumn('string', 'Time (ms)');
     data.addColumn('number', 'Memory (MB)');
+    data.addColumn({type: 'string', role: 'tooltip'});
     data.addColumn('number', 'Max');
     data.addColumn('number', 'Avg');
     data.addColumn('number', 'Min');
-    data.addColumn({type: 'string', role: 'tooltip'});
     data.addRows(%data);
 
     elem = document.getElementById("profile_chart");
@@ -85,14 +85,14 @@ HTML;
             $htime = !$index ? '0.00000000...' :
                 (string) ($time - $snapshot->starttime);
 
-            $this->data[] = [ $htime, $memory, $max, $avg, $min, implode("\r\n", [
+            $this->data[] = [ $htime, $memory, implode("\r\n", [
                 self::tsection('Tick', ++$index),
                 self::tsection('Function', $func),
                 self::tsection('File', $file),
                 self::tsection('Line', $line),
                 self::tsection('Memory', "{$memory} bytes"),
                 self::tsection('Time', "{$time} ms"),
-            ]) ];
+            ]), $max, $avg, $min ];
         }
     }
 
