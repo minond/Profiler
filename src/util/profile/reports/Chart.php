@@ -1,7 +1,8 @@
 <?php
 
-namespace util\profile\Report;
+namespace util\profile\reports;
 
+use util\profile\Snapshot;
 use util\profile\Report;
 
 /**
