@@ -22,7 +22,6 @@ google.load("visualization", "1", {packages:["corechart"]});
 google.setOnLoadCallback(function() {
     var data, chart, elem;
 
-    // data = google.visualization.arrayToDataTable(%data);
     data = new google.visualization.DataTable;
     data.addColumn('string', 'Time (ms)');
     data.addColumn('number', 'Memory (MB)');
