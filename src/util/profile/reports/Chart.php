@@ -26,6 +26,9 @@ google.setOnLoadCallback(function() {
     data = new google.visualization.DataTable;
     data.addColumn('string', 'Time (ms)');
     data.addColumn('number', 'Memory (MB)');
+    data.addColumn('number', 'Max');
+    data.addColumn('number', 'Avg');
+    data.addColumn('number', 'Min');
     data.addColumn({type: 'string', role: 'tooltip'});
     data.addRows(%data);
 
@@ -67,6 +70,10 @@ HTML;
      */
     public function prepare(Snapshot $snapshot)
     {
+        $max = $snapshot->maxmemory / 1024 / 1024;
+        $avg = $snapshot->avgmemory / 1024 / 1024;
+        $min = $snapshot->startmemory / 1024 / 1024;
+
         foreach ($snapshot->trace as $index => $trace) {
             extract($trace);
 
@@ -78,7 +85,7 @@ HTML;
             $htime = !$index ? '0.00000000...' :
                 (string) ($time - $snapshot->starttime);
 
-            $this->data[] = [ $htime, $memory, implode("\r\n", [
+            $this->data[] = [ $htime, $memory, $max, $avg, $min, implode("\r\n", [
                 self::tsection('Tick', ++$index),
                 self::tsection('Function', $func),
                 self::tsection('File', $file),
