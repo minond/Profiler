@@ -229,7 +229,7 @@ class Profiler
      * @param array $trace
      * @return array
      */
-    public static function parseinfo(array & $trace)
+    protected static function parseinfo(array & $trace)
     {
         return [
             'file' => self::get($trace, 'file'),
@@ -240,5 +240,15 @@ class Profiler
             'memory' => memory_get_usage(),
             'time' => microtime(true),
         ];
+    }
+
+    /**
+     * keys if profiling is enabled
+     * @return boolean
+     */
+    public static function enabled()
+    {
+        $key = '__profile_on';
+        return isset($_REQUEST[ $key ]) !! isset($_ENV[ $key ]);
     }
 }
