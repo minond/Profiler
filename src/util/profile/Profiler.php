@@ -249,6 +249,7 @@ class Profiler
     public static function enabled()
     {
         $key = '__profile_on';
-        return isset($_REQUEST[ $key ]) || isset($_ENV[ $key ]);
+        return isset($_REQUEST[ $key ]) || isset($_ENV[ $key ]) ||
+            getenv($key) !== false;
     }
 }
