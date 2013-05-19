@@ -1,6 +1,6 @@
 <?php
 
-namespace util\profile\Profiler\Report;
+namespace util\profile\Report;
 
 /**
  * outputs a report
