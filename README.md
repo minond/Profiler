@@ -83,6 +83,16 @@ object(util\profile\Snapshot)[33]
           'memory' => int 1126948
           'time' => float 1368675239.0264
 ```
+### Reports
+Reports are used to output Snapshot objects in a human/environment friendly format:
+```php
+use util\profile\reports\Chart;
+
+$chart = new Chart;
+$chart->prepare($snapshot);
+$chart->configure(['chart_type' => 'LineChart']);
+echo $chart->output();
+```
 
 ## Installation
 Install via composer: <code>"minond/profiler": "dev-master"</code>
