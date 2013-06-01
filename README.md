@@ -1,7 +1,10 @@
 Profiler
 ========
 
-## Profiler object
+## Important note
+It is important to note this is a very simple profiler and should only be used to get an idea of a script's performance.
+
+## Profiler
 Creating new profilers:
 ```php
 use util\profile\Profiler;
@@ -56,8 +59,8 @@ $profiler->on('stop', function(Snapshot $snapshot) {
 
 $profiler->stop();
 ```
-## Snapshot object
-Sample <code>Snapshot</code>:
+## Snapshot
+Sample <code>Snapshot</code> object:
 ```php
 object(util\profile\Snapshot)[33]
   public 'name' => string 'AcmeAnvils' (length=10)
