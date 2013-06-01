@@ -1,0 +1,65 @@
+<style type="text/css">
+#{{elem_id}} .info {
+    position: fixed;
+    top: -1px;
+    right: 10px;
+    padding: 6px 10px;
+    font: bold 11px monospace;
+    cursor: pointer;
+    background-color: rgb(255, 224, 224);
+    color: rgb(54, 54, 54);
+    border: 1px solid rgb(255, 115, 115);
+}
+
+#{{elem_id}} .chart {
+    width: 800px;
+    height: 250px;
+    position: fixed;
+    top: 30px;
+    right: 10px;
+    border: 1px solid rgb(255, 115, 115);
+    display: none;
+    color: black;
+    background-color: white;
+    box-shadow: 1px 1px 10px rgb(255, 115, 115);
+    padding-bottom: 50px;
+}
+
+#{{elem_id}}.active .chart {
+    display: block;
+}
+
+#{{elem_id}} .chart.loading {
+    top: -1000px;
+    display: block;
+}
+</style>
+<div id="{{elem_id}}">
+    <div class="chart loading"></div>
+    <div class="info">{{runtime_sec}} ms / {{maxmemory_mb}} MB</div>
+</div>
+<script type="text/javascript" src="{{google_jsapi}}"></script>
+<script type="text/javascript">
+google.load("visualization", "1", {packages:["corechart"]});
+google.setOnLoadCallback(function() {
+    var data, chart, elem, active = false;
+
+    data = new google.visualization.DataTable;
+    data.addColumn('string', 'Time (ms)');
+    data.addColumn('number', 'Memory (MB)');
+    data.addColumn({type: 'string', role: 'tooltip'});
+    data.addColumn('number', 'Max');
+    data.addColumn('number', 'Avg');
+    data.addColumn('number', 'Min');
+    data.addRows({{data}});
+
+    elem = document.querySelector("#{{elem_id}} .chart");
+    chart = new google.visualization.{{chart_type}}(elem);
+    chart.draw(data, {{conf}});
+    elem.className = elem.className.replace("loading", "");
+
+    document.querySelector("#{{elem_id}} .info").addEventListener("click", function() {
+        this.parentNode.className = active = !active ? "active" : "";
+    });
+});
+</script>

@@ -157,11 +157,12 @@ class Profiler
 
     /**
      * report information
-     * @return array
+     * @return Snapshot
      */
     public function report()
     {
         $now = microtime(true);
+        $runtime = $now - $this->starttime;
         $mem = memory_get_usage();
         $max = memory_get_peak_usage();
         $avg = array_sum(array_map(function($trace) {
@@ -180,7 +181,7 @@ class Profiler
         $snapshot->startmemory = $this->startmemory;
         $snapshot->endtime = $this->endtime;
         $snapshot->endmemory = $this->endmemory;
-        $snapshot->runtime = $now - $this->starttime;
+        $snapshot->runtime = $runtime;
         $snapshot->trace = $this->trace;
 
         return $snapshot;

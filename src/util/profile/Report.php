@@ -28,6 +28,7 @@ abstract class Report
     /**
      * should make final preparations to data they output it
      * ie. a js output/report would call json_encode on the prepared snapshot
+     * @return string
      */
     abstract public function output();
 
@@ -38,5 +39,22 @@ abstract class Report
     public function configure(array $config = array())
     {
         $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * merge mergefields
+     * @param string
+     * @param array $fields
+     * @return string
+     */
+    protected static function str_r($str, array $fields)
+    {
+        if (is_file($str)) {
+            $str = file_get_contents($str);
+        }
+
+        return str_replace(array_map(function($field) {
+            return "{{{$field}}}";
+        }, array_keys($fields)), $fields, $str);
     }
 }

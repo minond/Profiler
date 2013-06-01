@@ -11,32 +11,9 @@ use util\profile\Report;
 class Chart extends Report
 {
     /**
-     * includes chart element holder a javascript code to generate it
-     * @var string
+     * @var Snapshot
      */
-    protected static $template = <<<HTML
-<div id="profile_chart"></div>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-google.load("visualization", "1", {packages:["corechart"]});
-google.setOnLoadCallback(function() {
-    var data, chart, elem;
-
-    data = new google.visualization.DataTable;
-    data.addColumn('string', 'Time (ms)');
-    data.addColumn('number', 'Memory (MB)');
-    data.addColumn({type: 'string', role: 'tooltip'});
-    data.addColumn('number', 'Max');
-    data.addColumn('number', 'Avg');
-    data.addColumn('number', 'Min');
-    data.addRows(%data);
-
-    elem = document.getElementById("profile_chart");
-    chart = new google.visualization.%chart_type(elem);
-    chart.draw(data, %conf);
-});
-</script>
-HTML;
+    protected $ns;
 
     /**
      * passed to google.visualization.*Chart.draw
@@ -44,11 +21,13 @@ HTML;
      */
     protected $config = [
         'title' => 'Profiler',
+        'google_jsapi' => 'https://www.google.com/jsapi',
+        'template' => '',
         'chart_type' => 'LineChart',
-        'height' => 500,
         'curveType' => 'function',
         'titlePosition' => 'in',
         'axisTitlesPosition' => 'in',
+        'elem_id' => 'profile_chart',
         'annotations' => [
             'style' => 'line',
         ],
@@ -56,7 +35,8 @@ HTML;
             'position' => 'in',
         ],
         'chartArea' => [
-            'width' => '60%',
+            'width' => '90%',
+            'height' => '50%',
         ],
         'hAxis' => [
             'title' => 'Time (ms)',
@@ -65,10 +45,21 @@ HTML;
     ];
 
     /**
+     * sets the template file (configuration item)
+     */
+    public function __construct()
+    {
+        $ds = DIRECTORY_SEPARATOR;
+        $me = dirname(__FILE__);
+        $this->config['template'] = "{$me}{$ds}Chart{$ds}template.html";
+    }
+
+    /**
      * @inheritdoc
      */
     public function prepare(Snapshot $snapshot)
     {
+        $this->ns = & $snapshot;
         $max = $snapshot->maxmemory / 1024 / 1024;
         $avg = $snapshot->avgmemory / 1024 / 1024;
         $min = $snapshot->startmemory / 1024 / 1024;
@@ -100,15 +91,26 @@ HTML;
      */
     public function output()
     {
-        echo str_replace([
-            '%data',
-            '%conf',
-            '%chart_type',
-        ], [
-            json_encode($this->data),
-            json_encode($this->config),
-            $this->config['chart_type'],
-        ], self::$template);
+        return self::str_r($this->config['template'], [
+            'data' => json_encode($this->data),
+            'conf' => json_encode($this->config),
+            'chart_type' => $this->config['chart_type'],
+            'elem_id' => $this->config['elem_id'],
+            'google_jsapi' => $this->config['google_jsapi'],
+            'runtime_sec' => self::numberf($this->ns->runtime, 2),
+            'maxmemory_mb' => self::numberf($this->ns->maxmemory / 1024 / 1024, 1),
+        ]);
+    }
+
+    /**
+     * format a number
+     * @param numeric $num
+     * @param int $dec
+     * @return string
+     */
+    protected static function numberf($num, $dec = 0)
+    {
+        return preg_replace('/^0+|\.[0+]$/', '', number_format($num, $dec));
     }
 
     /**
