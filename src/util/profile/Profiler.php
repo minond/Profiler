@@ -39,6 +39,11 @@ class Profiler
     protected $trace = [];
 
     /**
+     * @var array
+     */
+    protected $uniq = [];
+
+    /**
      * time when Profiler::start was called
      * @var int
      */
@@ -87,7 +92,7 @@ class Profiler
      * @param int $name
      * @param int $mode, default = Profiler::HEAVY
      */
-    public function __construct($name, $mode = self::HEAVY)
+    public function __construct($name, $mode = self::LIGHT)
     {
         $this->name = $name;
         $this->mode = $mode;
@@ -102,17 +107,9 @@ class Profiler
         $this->startmemory = memory_get_usage();
         $this->starttime = microtime(true);
 
-        switch ($this->mode) {
-            case self::HEAVY:
-                register_tick_function([ $this, 'tick' ]);
-                register_shutdown_function([ $this, 'stop' ]);
-                declare(ticks=1);
-                break;
-
-            case self::LIGHT:
-                register_shutdown_function([ $this, 'stop' ]);
-                break;
-        }
+        register_tick_function([ $this, 'tick' ]);
+        register_shutdown_function([ $this, 'stop' ]);
+        declare(ticks=1);
 
         $this->trigger('start');
     }
@@ -122,13 +119,30 @@ class Profiler
      */
     public function tick()
     {
-        $trace = array_reverse(debug_backtrace());
+        $trace = array_reverse(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         array_pop($trace); // this function
         $count = count($trace);
         $this->ticks++;
 
-        for (;$this->loc < $count; $this->loc++) {
-            $this->trace[] = self::parseinfo($trace[ $this->loc ]);
+        switch ($this->mode) {
+            case self::HEAVY:
+                for ($i = 0; $i < $count; $i++) {
+                    $hash = md5(serialize($trace[ $i ]));
+
+                    if (!in_array($hash, $this->uniq)) {
+                        $this->uniq[] = $hash;
+                        $this->trace[] = self::parseinfo($trace[ $i ]);
+                    }
+                }
+
+                break;
+
+            case self::LIGHT:
+                for (;$this->loc < $count; $this->loc++) {
+                    $this->trace[] = self::parseinfo($trace[ $this->loc ]);
+                }
+
+                break;
         }
 
         $this->trigger('tick');
@@ -147,12 +161,7 @@ class Profiler
         $this->endmemory = memory_get_usage();
         $this->endtime = microtime(true);
 
-        switch ($this->mode) {
-            case self::HEAVY:
-                unregister_tick_function([ $this, 'tick' ]);
-                break;
-        }
-
+        unregister_tick_function([ $this, 'tick' ]);
         $this->trigger('stop');
     }
 
