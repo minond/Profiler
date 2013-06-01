@@ -123,6 +123,7 @@ class Profiler
     public function tick()
     {
         $trace = array_reverse(debug_backtrace());
+        array_pop($trace); // this function
         $count = count($trace);
         $this->ticks++;
 
