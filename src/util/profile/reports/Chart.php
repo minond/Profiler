@@ -16,6 +16,11 @@ class Chart extends Report
     protected $ns;
 
     /**
+     * @var string
+     */
+    protected $rows = '';
+
+    /**
      * passed to google.visualization.*Chart.draw
      * @var array
      */
@@ -35,8 +40,9 @@ class Chart extends Report
             'position' => 'in',
         ],
         'chartArea' => [
-            'width' => '90%',
+            'width' => '91%',
             'height' => '50%',
+            'top' => '5',
         ],
         'hAxis' => [
             'title' => 'Time (ms)',
@@ -60,18 +66,21 @@ class Chart extends Report
     public function prepare(Snapshot $snapshot)
     {
         $this->ns = & $snapshot;
-        $max = $snapshot->maxmemory / 1024 / 1024;
-        $avg = $snapshot->avgmemory / 1024 / 1024;
-        $min = $snapshot->startmemory / 1024 / 1024;
+        $max = self::mb($snapshot->maxmemory);
+        $avg = self::mb($snapshot->avgmemory);
+        $min = self::mb($snapshot->startmemory);
+        var_dump($snapshot);
+        var_dump($_SERVER);
 
         foreach ($snapshot->trace as $index => $trace) {
             extract($trace);
 
+            $i = $index + 1;
             $func = $class ? $class . $type . $function : $function;
             $file = str_replace([FABRICO_ROOT, FABRICO_PROJECT_ROOT],
                 '', $file);
             $memory = (double) number_format(
-                $trace['memory'] / 1024 / 1024, 4);
+                self::mb($memory), 4);
             $htime = !$index ? '0.00000000...' :
                 (string) ($time - $snapshot->starttime);
 
@@ -83,6 +92,20 @@ class Chart extends Report
                 self::tsection('Memory', "{$memory} bytes"),
                 self::tsection('Time', "{$time} ms"),
             ]), $max, $avg, $min ];
+
+            $fullfile = $file;
+            $file = explode(DIRECTORY_SEPARATOR, $file);
+            $file = array_pop($file);
+            $this->rows .= <<<HTML
+<tr>
+    <td>{$i}</td>
+    <td>{$func}</td>
+    <td title="{$fullfile}">{$file}</td>
+    <td>{$line}</td>
+    <td>{$memory}</td>
+    <td>{$time}</td>
+</tr>
+HTML;
         }
     }
 
@@ -92,13 +115,21 @@ class Chart extends Report
     public function output()
     {
         return self::str_r($this->config['template'], [
+            'view' => $_SERVER['PHP_SELF'],
+            'autohide' => isset($_COOKIE['profiler_autoshow']) ?: 'autohide',
+            'profiler_name' => $this->ns->name,
+            'minmemory' => self::numberf(self::mb($this->ns->startmemory), 3),
+            'maxmemory' => self::numberf(self::mb($this->ns->maxmemory), 3),
+            'avgmemory' => self::numberf(self::mb($this->ns->avgmemory), 3),
+            'runtime' => self::numberf($this->ns->runtime, 3),
+            'rows' => $this->rows,
             'data' => json_encode($this->data),
             'conf' => json_encode($this->config),
             'chart_type' => $this->config['chart_type'],
             'elem_id' => $this->config['elem_id'],
             'google_jsapi' => $this->config['google_jsapi'],
             'runtime_sec' => self::numberf($this->ns->runtime, 2),
-            'maxmemory_mb' => self::numberf($this->ns->maxmemory / 1024 / 1024, 1),
+            'maxmemory_mb' => self::numberf(self::mb($this->ns->maxmemory), 1),
         ]);
     }
 
@@ -122,5 +153,15 @@ class Chart extends Report
     protected static function tsection($name, $data)
     {
         return "{$name}: {$data}";
+    }
+
+    /**
+     * kb => mb
+     * @param number $n
+     * @return double
+     */
+    protected static function mb($n)
+    {
+        return $n / 1024 / 1024;
     }
 }

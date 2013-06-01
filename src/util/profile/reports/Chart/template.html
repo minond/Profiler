@@ -1,65 +1,222 @@
 <style type="text/css">
+#{{elem_id}} {
+	cursor: default;
+}
+
+#{{elem_id}} .mini {
+	position: fixed;
+	top: -1px;
+	right: 10px;
+	padding: 6px 10px;
+	font: bold 11px monospace;
+	cursor: pointer;
+	background-color: rgb(255, 224, 224);
+	color: rgb(54, 54, 54);
+	border: 1px solid rgb(255, 115, 115);
+}
+
 #{{elem_id}} .info {
-    position: fixed;
-    top: -1px;
-    right: 10px;
-    padding: 6px 10px;
-    font: bold 11px monospace;
-    cursor: pointer;
-    background-color: rgb(255, 224, 224);
-    color: rgb(54, 54, 54);
-    border: 1px solid rgb(255, 115, 115);
+	position: fixed;
+	top: 30px;
+	right: 10px;
+	border: 1px solid rgb(255, 115, 115);
+	color: black;
+	background-color: white;
+	box-shadow: 1px 1px 10px rgb(255, 115, 115);
+	padding-bottom: 20px;
 }
 
-#{{elem_id}} .chart {
-    width: 800px;
-    height: 250px;
-    position: fixed;
-    top: 30px;
-    right: 10px;
-    border: 1px solid rgb(255, 115, 115);
-    display: none;
-    color: black;
-    background-color: white;
-    box-shadow: 1px 1px 10px rgb(255, 115, 115);
-    padding-bottom: 50px;
+#{{elem_id}}.autohide .info {
+	display: none;
 }
 
-#{{elem_id}}.active .chart {
-    display: block;
+#{{elem_id}}.active .info {
+	display: block;
 }
 
-#{{elem_id}} .chart.loading {
-    top: -1000px;
-    display: block;
+#{{elem_id}}.autohide.loading .info {
+	top: -1000px;
+	display: block;
+}
+
+#{{elem_id}} .info .chart {
+	width: 800px;
+	height: 230px;
+}
+
+#{{elem_id}} .info .desc {
+	padding: 12px;
+}
+
+#{{elem_id}} .info .desc .header {
+	font: bold 18px Arial;
+	color: rgb(48, 48, 48);
+	margin-left: 3px;
+}
+
+#{{elem_id}} .info .desc .subheader {
+	font: normal 11px Arial;
+	color: rgb(187, 187, 187);
+	margin-left: 3px;
+}
+
+#{{elem_id}} .info .desc .sidecontent {
+	text-align: right;
+}
+
+#{{elem_id}} .info .desc > table {
+	width: 100%;
+}
+
+#{{elem_id}} .info .desc table td {
+	vertical-align: top;
+}
+
+#{{elem_id}} .info .desc .listtable {
+	width: 760px;
+	height: 200px;
+	overflow: auto;
+	margin: 8px 0px;
+}
+
+#{{elem_id}} .info .desc .listtable table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#{{elem_id}} .info .desc .listtable table td {
+	font: normal 12px Arial;
+	border-right: 1px solid #cecece;
+	border-left: 1px solid #cecece;
+	padding: 2px 5px;
+}
+
+#{{elem_id}} .info .desc .listtable table thead td {
+	color: rgb(187, 187, 187);
+}
+
+#{{elem_id}} .info .desc .listtable table tbody td {
+	color: rgb(48, 48, 48);
+}
+
+#{{elem_id}} .info .desc .listtable table tbody tr:nth-child(odd) td {
+	background-color: rgb(255, 244, 244);
+}
+
+#{{elem_id}} .info .desc .listtable table td:first-child {
+	border-left: 0px;
+	text-align: right;
+	color: rgb(187, 187, 187);
+}
+
+#{{elem_id}} .info .desc .listtable table td:last-child {
+	border-right: 0px;
+}
+
+#{{elem_id}} .info .desc .listtable table tbody tr:nth-child(odd) td:first-child {
+	background-color: white;
+}
+
+#{{elem_id}} .info .desc .datatable {
+	display: inline-block;
+	margin-right: 15px;
+}
+
+#{{elem_id}} .info .desc .datatable td {
+	width: 25%;
+	text-align: right;
+	font: normal 13px Arial;
+	min-width: 50px;
+}
+
+#{{elem_id}} .info .desc .datatable table tr:first-child td {
+	color: rgb(187, 187, 187);
+}
+
+#{{elem_id}} .info .desc .datatable table tr:not(:first-child) td {
+	color: rgb(48, 48, 48);
 }
 </style>
-<div id="{{elem_id}}">
-    <div class="chart loading"></div>
-    <div class="info">{{runtime_sec}} ms / {{maxmemory_mb}} MB</div>
+<div id="{{elem_id}}" class="{{autohide}} loading">
+	<div class="info">
+		<div class="desc">
+			<table>
+				<tr>
+					<td>
+						<div class="header">{{view}}</div>
+						<div class="subheader">{{profiler_name}}</div>
+					</td>
+					<td class="sidecontent">
+						<div class="datatable">
+							<table>
+								<tr>
+									<td>Start</td>
+									<td>Max</td>
+									<td>Avg</td>
+									<td>Total</td>
+								</tr>
+								<tr>
+									<td>{{minmemory}}</td>
+									<td>{{maxmemory}}</td>
+									<td>{{avgmemory}}</td>
+									<td>{{runtime}}</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div class="listtable">
+							<table>
+								<thead>
+									<tr>
+										<td>#</td>
+										<td>Function</td>
+										<td>File</td>
+										<td>Line</td>
+										<td>Memory</td>
+										<td>Time</td>
+									</tr>
+								</thead>
+								<tbody>
+								{{rows}}
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="chart"></div>
+	</div>
+	<div class="mini">{{runtime_sec}} ms / {{maxmemory_mb}} MB</div>
 </div>
 <script type="text/javascript" src="{{google_jsapi}}"></script>
 <script type="text/javascript">
 google.load("visualization", "1", {packages:["corechart"]});
 google.setOnLoadCallback(function() {
-    var data, chart, elem, active = false;
+	var data, chart, elem, active = !!document.cookie.match("profiler_autoshow=1"),
+		holder = document.getElementById("{{elem_id}}");
 
-    data = new google.visualization.DataTable;
-    data.addColumn('string', 'Time (ms)');
-    data.addColumn('number', 'Memory (MB)');
-    data.addColumn({type: 'string', role: 'tooltip'});
-    data.addColumn('number', 'Max');
-    data.addColumn('number', 'Avg');
-    data.addColumn('number', 'Min');
-    data.addRows({{data}});
+	data = new google.visualization.DataTable;
+	data.addColumn('string', 'Time (ms)');
+	data.addColumn('number', 'Memory (MB)');
+	data.addColumn({type: 'string', role: 'tooltip'});
+	data.addColumn('number', 'Max');
+	data.addColumn('number', 'Avg');
+	data.addColumn('number', 'Min');
+	data.addRows({{data}});
 
-    elem = document.querySelector("#{{elem_id}} .chart");
-    chart = new google.visualization.{{chart_type}}(elem);
-    chart.draw(data, {{conf}});
-    elem.className = elem.className.replace("loading", "");
+	elem = document.querySelector("#{{elem_id}} .chart");
+	chart = new google.visualization.{{chart_type}}(elem);
+	chart.draw(data, {{conf}});
+	holder.className = holder.className.replace("loading", "");
 
-    document.querySelector("#{{elem_id}} .info").addEventListener("click", function() {
-        this.parentNode.className = active = !active ? "active" : "";
-    });
+	document.querySelector("#{{elem_id}} .mini").addEventListener("click", function() {
+		holder.className = (active = !active) ? "active" : "autohide";
+		document.cookie = "profiler_autoshow=1" +
+			(active ? "" : ";expires=" + (new Date).toGMTString());
+	});
 });
 </script>
