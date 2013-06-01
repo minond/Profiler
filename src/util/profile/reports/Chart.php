@@ -69,8 +69,6 @@ class Chart extends Report
         $max = self::mb($snapshot->maxmemory);
         $avg = self::mb($snapshot->avgmemory);
         $min = self::mb($snapshot->startmemory);
-        var_dump($snapshot);
-        var_dump($_SERVER);
 
         foreach ($snapshot->trace as $index => $trace) {
             extract($trace);
