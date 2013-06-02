@@ -26,7 +26,6 @@ class Chart extends Report
      */
     protected $config = [
         'title' => 'Profiler',
-        'google_jsapi' => 'https://www.google.com/jsapi',
         'template' => '',
         'chart_type' => 'LineChart',
         'curveType' => 'function',
@@ -125,7 +124,6 @@ HTML;
             'conf' => json_encode($this->config),
             'chart_type' => $this->config['chart_type'],
             'elem_id' => $this->config['elem_id'],
-            'google_jsapi' => $this->config['google_jsapi'],
             'runtime_sec' => self::numberf($this->ns->runtime, 2),
             'maxmemory_mb' => self::numberf(self::mb($this->ns->maxmemory), 1),
         ]);
