@@ -253,16 +253,16 @@ google.setOnLoadCallback(function() {
 		elem = document.querySelector("#{{elem_id}} .chart");
 		chart = new google.visualization.{{chart_type}}(elem);
 		chart.draw(data, {{conf}});
-		holder.className = holder.className.replace("loading", "");
-
-		document.querySelector("#{{elem_id}} .mini").addEventListener("click", function() {
-			holder.className = (active = !active) ? "active" : "autohide";
-			document.cookie = "profiler_autoshow=1" +
-				(active ? "" : ";expires=" + (new Date).toGMTString());
-		});
 	} else {
 		// error loading visualization library
 		document.querySelector("#{{elem_id}} .chart").style.display = "none";
 	}
+
+	holder.className = holder.className.replace("loading", "");
+	document.querySelector("#{{elem_id}} .mini").addEventListener("click", function() {
+		holder.className = (active = !active) ? "active" : "autohide";
+		document.cookie = "profiler_autoshow=1" +
+			(active ? "" : ";expires=" + (new Date).toGMTString());
+	});
 });
 </script>
