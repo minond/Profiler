@@ -28,9 +28,10 @@ abstract class Report
     /**
      * should make final preparations to data they output it
      * ie. a js output/report would call json_encode on the prepared snapshot
+     * @param boolean $return, default = false
      * @return string
      */
-    abstract public function output();
+    abstract public function output($return = false);
 
     /**
      * updates $config

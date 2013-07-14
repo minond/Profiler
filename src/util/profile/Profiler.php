@@ -89,12 +89,12 @@ class Profiler
     protected $running = false;
 
     /**
-     * @param int $name
      * @param int $mode, default = Profiler::HEAVY
+     * @param string $name, default = null
      */
-    public function __construct($name, $mode = self::LIGHT)
+    public function __construct($mode = self::LIGHT, $name = null)
     {
-        $this->name = $name;
+        $this->name = $name ?: date('Y/m/d H:i:s');
         $this->mode = $mode;
     }
 
@@ -262,5 +262,39 @@ class Profiler
         $key = '__profile_on';
         return isset($_REQUEST[ $key ]) || isset($_ENV[ $key ]) ||
             getenv($key) !== false;
+    }
+
+    /**
+     * args:
+     * - int mode
+     * - string name
+     * - array conf
+     * - string report
+     * @param array $args
+     * @return Profiler
+     */
+    public static function profile($args = array())
+    {
+        $mode = isset($args['mode']) ? $args['mode'] : self::LIGHT;
+        $name = isset($args['name']) ? $args['name'] : null;
+        $conf = isset($args['conf']) ? $args['conf'] : null;
+        $report = isset($args['report']) ? $args['report'] : null;
+
+        $profiler = new static($mode, $name);
+        $profiler->start();
+        $profiler->on('stop', function(Snapshot $snapshot) use ($conf, $report) {
+            if ($report) {
+                $report = new $report;
+                $report->prepare($snapshot);
+
+                if ($conf) {
+                    $report->configure($conf);
+                }
+
+                $report->output();
+            }
+        });
+
+        return $profiler;
     }
 }

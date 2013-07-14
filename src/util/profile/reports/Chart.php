@@ -39,8 +39,8 @@ class Chart extends Report
             'position' => 'in',
         ],
         'chartArea' => [
-            'width' => '91%',
-            'height' => '60%',
+            'width' => '90%',
+            'height' => '70%',
             'top' => '8',
         ],
         'hAxis' => [
@@ -74,8 +74,6 @@ class Chart extends Report
 
             $i = $index + 1;
             $func = $class ? $class . $type . $function : $function;
-            $file = str_replace([FABRICO_ROOT, FABRICO_PROJECT_ROOT],
-                '', $file);
             $memory = (double) number_format(
                 self::mb($memory), 4);
             $htime = !$index ? '0.00000000...' :
@@ -109,10 +107,10 @@ HTML;
     /**
      * @inheritdoc
      */
-    public function output()
+    public function output($return = false)
     {
-        return self::str_r($this->config['template'], [
-            'view' => $_SERVER['PHP_SELF'],
+        $output = self::str_r($this->config['template'], [
+            'view' => $_SERVER['REQUEST_URI'],
             'autohide' => isset($_COOKIE['profiler_autoshow']) ?: 'autohide',
             'profiler_name' => $this->ns->name,
             'minmemory' => self::numberf(self::mb($this->ns->startmemory), 2) . ' MB',
@@ -127,6 +125,13 @@ HTML;
             'runtime_sec' => self::numberf($this->ns->runtime, 2),
             'maxmemory_mb' => self::numberf(self::mb($this->ns->maxmemory), 1),
         ]);
+
+        if (!$return) {
+            echo $output;
+            $output = null;
+        }
+
+        return $output;
     }
 
     /**
