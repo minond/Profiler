@@ -2,8 +2,10 @@
 
 use util\profile\Profiler;
 
-return Profiler::profile([
-    'mode' => Profiler::HEAVY,
-    'name' => 'Profiler',
-    'report' => '\util\profile\reports\Chart',
-]);
+if (Profiler::enabled()) {
+    Profiler::profile([
+        'mode' => Profiler::HEAVY,
+        'name' => 'Profiler',
+        'report' => '\util\profile\reports\Chart',
+    ]);
+}
