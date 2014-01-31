@@ -109,7 +109,7 @@ HTML;
      */
     public function output($return = false)
     {
-        $output = self::str_r($this->config['template'], [
+        $output = self::mergeString($this->config['template'], [
             'view' => $_SERVER['REQUEST_URI'],
             'autohide' => isset($_COOKIE['profiler_autoshow']) ?: 'autohide',
             'profiler_name' => $this->ns->name,

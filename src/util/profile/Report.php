@@ -48,7 +48,7 @@ abstract class Report
      * @param array $fields
      * @return string
      */
-    protected static function str_r($str, array $fields)
+    protected static function mergeString($str, array $fields)
     {
         if (is_file($str)) {
             $str = file_get_contents($str);
